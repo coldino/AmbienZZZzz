@@ -1,0 +1,58 @@
+body {
+	min-height: 100vh;
+	background-image: url('/img/bg.svg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+}
+
+a {
+	color: #ac6f46;
+	font-weight: 500;
+}
+
+input[type='range'][orient='vertical'] {
+	writing-mode: bt-lr; /* IE */
+	-webkit-appearance: slider-vertical; /* Chromium */
+	width: 8px;
+	height: 75px;
+	padding: 0 5px;
+	accent-color: #bf6685;
+}
+
+/* Enable animation for these opacity variables (requires modern browser) */
+@property --bg-to-opacity {
+	syntax: '<number>';
+	initial-value: 0;
+	inherits: false;
+}
+@property --bg-from-opacity {
+	syntax: '<number>';
+	initial-value: 0.33;
+	inherits: false;
+}
+
+.fadebtn {
+	--bg-from-opacity: 0.32;
+	--bg-to-opacity: 0;
+	--bg-base: 255, 112, 131;
+
+	background-image: linear-gradient(
+		to bottom right,
+		rgba(var(--bg-base), var(--bg-from-opacity)),
+		rgba(var(--bg-base), var(--bg-to-opacity))
+	);
+
+	@apply rounded-lg border border-white border-opacity-20;
+	@apply ring-white/15 ring-1;
+	@apply shadow-black shadow-lg;
+
+	transition: --bg-to-opacity 0.3s ease-in-out;
+	transition: --bg-from-opacity 0.3s ease-in-out;
+	transition: border-color 0.3s ease-in-out;
+}
+.fadebtn.active,
+.active .fadebtn {
+	@apply border-opacity-60;
+	@apply ring-white/30;
+}
