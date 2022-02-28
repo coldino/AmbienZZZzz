@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { fly } from 'svelte/transition';
-
 	import { localstore } from '$lib/localstorage';
 	import { scenes, sounds, type Scene } from '$lib/scenes';
 
+	import PlayPauseButton from '$lib/PlayPauseButton.svelte';
 	import SceneButton from '$lib/SceneButton.svelte';
 	import SoundButton from '$lib/SoundButton.svelte';
+	import HelpButton from '$lib/HelpButton.svelte';
 
 	type SoundState = {
 		active: boolean;
@@ -92,62 +92,28 @@
 	<title>AmbienZZZzz : Ambient Sound Mixer</title>
 </svelte:head>
 
-<div class="flex justify-center">
-	<section class="flex flex-row justify-between mx-8 flex-1 max-w-[560px]">
-		<img src="/img/relax.png" alt="Relax" class="w-300px h-150px" />
-		<div class="flex-1" />
-		<section class="flex flex-row items-center my-4">
-			<button
-				class="w-7 stroke-current m-1 grid place-items-center mr-4"
-				title="Help + About this app"
-				on:click={() => (window.location.pathname = '/about')}
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" stroke="#aaaaaa" fill="white">
-					<circle cx="30" cy="30" r="28" fill="none" stroke-width="3" />
-					<path
-						stroke="none"
-						d="M41 17.8c-.2 3.7-2.9 6.7-5.5 9-2.8 2.6-5.7 5.6-6.4 9.5-.6.8.4 3-1 2.8h-2c0-3.5.6-7 2.6-10 2-3.5 5.2-6.5 6-10.5.5-2.1-.7-4.5-2.8-5-3.1-1-6.6.4-8.4 3A13.6 13.6 0 0 0 21 24h-1.8v-8.3a27 27 0 0 1 15.7-4c2.6.2 5.4 1.7 6 4.5l.1 1.5zM30.6 45c.1 2.3-2.5 4-4.6 3-2.2-.8-2.7-4.1-.8-5.6 1.7-1.6 5-.4 5.3 2v.6z"
-					/>
-				</svg>
-			</button>
-			<button on:click={playToggle} class="w-12 stroke-current text-white m-1" title="Play/Pause">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
-					<circle cx="30" cy="30" r="28" fill="none" stroke-width="3" />
-					{#if paused}
-						<path
-							transition:fly={{ y: 50, duration: 200 }}
-							fill="none"
-							stroke-linejoin="round"
-							stroke-width="3"
-							d="M45 30 23 15v30z"
-						/>
-					{:else}
-						<path
-							transition:fly={{ y: 50, duration: 200 }}
-							stroke-linecap="round"
-							stroke-width="3"
-							d="M22 15v30m16-30v30"
-						/>
-					{/if}
-				</svg>
-			</button>
-			<input
-				aria-label="master volume"
-				class="ml-6 mr-4"
-				type="range"
-				min="0"
-				max="1"
-				step="0.01"
-				bind:value={masterVolume}
-				orient="vertical"
-			/>
-		</section>
+<div class="flex justify-between  max-w-[570px] mx-auto">
+	<img src="/img/relax.png" alt="Relax" class="relax" />
+	<div class="flex-1" />
+	<section class="flex flex-row items-center pl-4 pr-8">
+		<HelpButton />
+		<PlayPauseButton on:click={playToggle} bind:paused />
+		<input
+			aria-label="master volume"
+			class="ml-6 mr-4 hidden xs:block"
+			type="range"
+			min="0"
+			max="1"
+			step="0.01"
+			bind:value={masterVolume}
+			orient="vertical"
+		/>
 	</section>
 </div>
 
-<div class="flex justify-center">
+<div class="flex justify-center mx-16">
 	<section
-		class="grid grid-cols-[6em,6em,6em] gap-x-8 gap-y-4 justify-between items-center mx-16 select-none max-w-[500px] flex-1"
+		class="grid grid-cols-[6em,6em,6em] gap-x-6 xs:gap-x-8 gap-y-4 justify-between items-center select-none max-w-[500px] flex-1"
 	>
 		{#each Object.entries(sounds) as [name, sound]}
 			<SoundButton
@@ -218,3 +184,10 @@
 		</SceneButton>
 	</section>
 </div>
+
+<style lang="postcss">
+	.relax {
+		width: calc(clamp(210px, 60vw, 400px));
+		height: calc(clamp(210px, 60vw, 400px) / 2);
+	}
+</style>
