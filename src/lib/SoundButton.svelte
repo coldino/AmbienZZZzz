@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	import type { Sound } from './scenes';
 
@@ -9,9 +10,22 @@
 	export let volume: number = 1;
 	export let paused: boolean = true;
 
+	let ready = false; // page ready
+	let loaded = false; // audio loaded
+
 	let audioEle: HTMLAudioElement;
 	let playing: boolean = false;
 
+	// Begin the audio loading after the page has loaded
+	onMount(() => {
+		window.addEventListener('load', () => {
+			setTimeout(() => {
+				ready = true;
+			}, 100);
+		});
+	});
+
+	/** Called whenever any of our main inputs change */
 	function updateState() {
 		// Only change anything if the state has changed
 		const shouldPlay = enabled && volume > 0 && !paused;
@@ -19,7 +33,7 @@
 			if (shouldPlay) {
 				// Protect against unloaded sounds
 				if (!isFinite(audioEle.duration)) {
-					audioEle.onloadeddata = updateState;
+					// audioEle.oncanplaythrough = updateState;
 					return;
 				}
 
@@ -33,6 +47,11 @@
 				playing = false;
 			}
 		}
+	}
+
+	function markLoaded() {
+		// Called with the <audio> element tells us the content is fully loaded
+		loaded = true;
 	}
 
 	function toggleSound() {
@@ -62,9 +81,26 @@
 		title={sound.description}
 		on:click={toggleSound}
 	>
-		<audio async loop preload="auto" src={sound.src} bind:this={audioEle} />
+		<audio
+			loop
+			preload={ready ? 'auto' : 'never'}
+			bind:this={audioEle}
+			on:canplaythrough={markLoaded}
+		>
+			{#if ready}
+				<source src={sound.src} type="audio/mpeg" />
+			{/if}
+		</audio>
 		<img src={sound.img} class="w-16 h-16" alt={sound.description} />
 	</button>
+	{#if !loaded}
+		<div transition:fade class="loading absolute w-4 bottom-1 right-1" title="...still loading...">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#FFD1D7">
+				<path d="M27 63H13v29h74V63H73v15H27Z" />
+				<path d="m27 44 23 28 23-28H60V10H40v34z" />
+			</svg>
+		</div>
+	{/if}
 	<div class="volumebox absolute top-[5px] pt-1 pb-1 w-[22px] flex justify-center">
 		<input
 			aria-label="volume for {sound.description}"
@@ -118,5 +154,23 @@
 	.active button:hover {
 		--bg-to-opacity: 0.4;
 		--bg-from-opacity: 0.8;
+	}
+
+	.loading {
+		opacity: 0.5;
+		will-change: opacity;
+		animation: 2s breathe infinite ease;
+	}
+
+	@keyframes breathe {
+		0% {
+			opacity: 0.5;
+		}
+		50% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0.5;
+		}
 	}
 </style>
